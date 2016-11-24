@@ -44,19 +44,20 @@ require(['../require-config'], function() {
                     var url_val = location.protocol + '//' + location.host + '/prepaid/v1/page/b/activity_detail.html/?activity_id=' + id;
                     location.href = url_val;
                 });
-                // $(window).on('scroll', function() {
-                //     $('.section_footer').hide();
-                // });
+                //fixed更改成absolute，进行top随滚动的调整--start--暂不需要
                 var auchorTop = $(".section_footer").css("top");
                 auchorTop = Number(auchorTop.substring(0, auchorTop.indexOf("p"))); //首先在监听器外部记录某id=anchor的标签的初始位置 
                 var top = document.documentElement.scrollTop || document.body.scrollTop;
-                console.log(auchorTop);
-                console.log(top);
-                $(".section_footer").css("top", auchorTop + top + "px");
+                var body_height = $('body').height();
+                // console.log(auchorTop);
+                // console.log(top);
+                // console.log(body_height);
+                $(".section_footer").css("bottom", "0px");
                 window.onscroll = function(e) {
                     top = document.documentElement.scrollTop || document.body.scrollTop;
                     $(".section_footer").css("top", auchorTop + top + "px");
                 };
+                //fixed更改成absolute，进行top随滚动的调整--end
             }());
             //获取所有活动信息
             function get_activities() {
@@ -100,7 +101,7 @@ require(['../require-config'], function() {
                     }
                 });
             }
-            //获取活动信息
+            //获取活动信息--增加倒计时判断--new
             function get_activity() {
                 $.ajax({
                     url: '/prepaid/v1/api/b/cur_activity',
@@ -152,18 +153,14 @@ require(['../require-config'], function() {
                                 $('.zheceng').hide();
                                 return false;
                             }
-                            //活动未开始判断
-                            var now_t = new Date(); //todo_需要服务器传值
-                            var start_t = start_time.substr(0, 10).replace(/-/g, '/') + ' 00:00:00'; //更改样式，保证ie及相关浏览器兼容时间格式
-                            var cha_t = now_t - new Date(start_t);
-                            if (cha_t >= 0) {
+                            //活动是否开始判断
+                            var count_day = data.data.countdown_day;
+                            if (count_day <= 0) {
                                 $('.js_ac_dateing').removeClass('title_none').siblings('.js_ac_date').addClass('title_none');
-                                $('.zheceng').hide();
-                                return false;
                             } else {
                                 //活动未开始
-                                //$('.js_ac_dateno').removeClass('title_none').siblings('.js_ac_date').addClass('title_none');
-                                $('.js_ac_dateing').removeClass('title_none').siblings('.js_ac_date').addClass('title_none');
+                                $('.js_countdown').text(count_day);
+                                $('.js_ac_dateno').removeClass('title_none').siblings('.js_ac_date').addClass('title_none');
                             }
                             $('.zheceng').hide();
                         }
@@ -231,6 +228,40 @@ require(['../require-config'], function() {
             }
             //关闭弹框
             close_tip.close_tip();
+            //倒计时 --start 
+            var start_time = '2016-11-23 09:00:00'.substr(0, 10).replace(/-/g, '/') + ' 00:00:00'; //更改样式，保证ie及相关浏览器兼容时间格式
+            var start_date = new Date(start_time);
+            var sys_time = '2016-11-21 12:00:00'.replace(/-/g, '/');
+            var now_time = new Date(sys_time); //服务器当前时间  
+            var timer_rt = null;
+
+            GetRTime();
+
+            function GetRTime() {
+                //计算距离开始天数
+                var t = start_date - now_time;
+                var nD = Math.ceil(t / (1000 * 60 * 60 * 24));
+                //document.getElementsByClassName('js_countdown').innerHTML=nD;
+                $(".js_countdown").text(nD);
+                console.log(t + '---' + nD);
+                //计算距离今天结束剩余时间                
+                var year = now_time.getFullYear();
+                var month = now_time.getMonth() + 1;
+                var day = now_time.getDate();
+                var today = year + '/' + month + '/' + day + ' 23:59:59';
+                var tomorrow = year + '/' + month + '/' + (day + 1) + ' 00:00:00';
+                var today_end = new Date(today) - now_time;
+                console.log(today + '-----' + today_end);
+                console.log(new Date(tomorrow));
+
+                if (t <= 0) {
+                    clearTimeout(timer_rt);
+                } else {
+                    now_time=new Date(tomorrow);
+                    timer_rt = window.setTimeout(GetRTime, today_end);
+                }
+            }
+
         })
     })
 })

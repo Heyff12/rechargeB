@@ -10,6 +10,11 @@
   "license": "ISC",
   "devDependencies": {
     "amd-optimize": "^0.6.1",
+    "browser-sync": "^2.18.2",
+    "chokidar": "^1.6.1",
+    "del": "^2.2.2",
+    "fr": "^1.2.2",
+    "fs": "0.0.1-security",
     "gulp": "^3.9.1",
     "gulp-autoprefixer": "^3.1.1",
     "gulp-clean": "^0.3.2",
@@ -25,6 +30,7 @@
     "gulp-uglify": "^2.0.0",
     "gulp-util": "^3.0.7",
     "jshint": "^2.9.4",
+    "path": "^0.12.7",
     "tiny-lr": "^1.0.3"
   }
 }
