@@ -7039,6 +7039,24 @@ html body .ui-group-theme-a a:visited {
 .ui-page-theme-a .ui-focus {
   box-shadow: 0 0 0;
 }
+/*没有更多数据了-----------------------------------------------*/
+div.nomoredata {
+  width: 3.6rem;
+  height: 1rem;
+  line-height: 1rem;
+  text-align: center;
+  color: white;
+  font-size: 0.4rem;
+  display: inline-block;
+  background: black;
+  position: fixed;
+  z-index: 20;
+  bottom: 1rem;
+  border-radius: 3px;
+  left: 50%;
+  margin-left: -2rem;
+  opacity: 0;
+}
 /* ==================储值页============================================================ */
 section.section_index {
   width: 100%;
@@ -7271,14 +7289,14 @@ span.blue {
   top: -0.05rem;
 }
 span.pig {
-  background: url('../img/ic_chuzhi.png') top left no-repeat;
+  background: url('../img/ic_ecard.png') top left no-repeat;
   background-size: 100% auto;
   width: 0.6rem;
   height: 0.6rem;
   margin-right: 0.1rem;
   display: inline-block;
   position: relative;
-  top: 0.1rem;
+  top: 0.22rem;
 }
 /* ==================储值协议页============================================================ */
 section.section_protol {
