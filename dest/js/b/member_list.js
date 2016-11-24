@@ -24,13 +24,19 @@ require.config({
             exports: '$'　　　　　　
         }
     }
-})
+});
+//点击会员列表
+function memberto(obj) {
+    var c=$(obj).attr('data-c');
+    var url_val = location.protocol + '//' + location.host + '/prepaid/v1/page/b/members/detail.html?c='+c;
+    location.href = url_val;
+};
 require(["zepto", "yanzheng", "close_tip"], function($, yanzheng, close_tip) {
     $(function() {
         //滚动下拉-------start--------------------------------------------------------
         var timer_rt = null;
         var scroll_if = false;
-        var b=1;
+        var b=1,times_add=0,nomor_show=false;
         // console.log(scroll_if);
         var window_height = window.innerHeight;
         var body_height= $('body').height();
@@ -53,13 +59,26 @@ require(["zepto", "yanzheng", "close_tip"], function($, yanzheng, close_tip) {
             // console.log('document.body.scrollTop--'+document.body.scrollTop);
             if (history_top < body_height - window_height) {
                 clearTimeout(timer_rt);
-            } else if (scroll_if) {
+            } else{
                 e.stopPropagation();
-                $('.load').show();
-                scroll_if = false;
-                timer_rt = window.setTimeout(append_ul, 3000);
-            }
+                if (scroll_if) {
+                    $('.load').show();
+                    scroll_if = false;
+                    timer_rt = window.setTimeout(append_ul, 3000);
+                }
+                if(nomor_show){
+                    $("#nomoredata").animate({opacity: 0.7,   }, 500,'ease-out');
+                    window.setTimeout(nomoredata_hide, 3000);                
+                    nomor_show=false;
+                }
+                console.log('scroll:scroll_if=='+scroll_if);
+                console.log('scroll:nomor_show=='+nomor_show);
+            }            
         });
+        function nomoredata_hide(){
+            //$('#nomoredata').hide();
+            $("#nomoredata").animate({opacity: 0, }, 500,'ease-out');
+        }
         function append_ul() {
             var con_list = '<li><dl><dt><img src="../../dest/img/wxchar.png"></dt><dd>韩梅梅</dd><dd class="grey"><i class="icon_tel"></i>13189569856</dd><dd class="grey">储值<span class="orange">2次</span></dd><div class="clearfix"></div></dl><p><span class="grey">余额</span><br/><span class="orange">￥<i class="i_normal">35.26</i></span></p></li>';
             var con_list1 = '<li><dl><dt><img src="../../dest/img/ic_shop_round@3x.png"></dt><dd>韩梅梅</dd><dd class="grey"><i class="icon_tel"></i>13189569856</dd><dd class="grey">储值<span class="orange">2次</span></dd><div class="clearfix"></div></dl><p><span class="grey">余额</span><br/><span class="orange">￥<i class="i_normal">35.26</i></span></p></li>';
@@ -72,12 +91,38 @@ require(["zepto", "yanzheng", "close_tip"], function($, yanzheng, close_tip) {
                 list = con_list;
                 b = 1;
             }
+            //判断终止添加数据
+            times_add++;
+            if(times_add>3){
+                $('.load').hide();
+                //最后添加的数据
+                var last_len=5;
+                for(var i=0;i<last_len;i++){
+                    $('.js_ul_members').append(list);
+                }
+                body_height = Math.floor($('body').height()).toFixed(0);
+                if(last_len<=0){
+                    //$('#nomoredata').show();
+                    $("#nomoredata").animate({opacity: 0.7,   }, 500,'ease-out');
+                    window.setTimeout(nomoredata_hide, 3000);                
+                    nomor_show=false;
+                }else{
+                    nomor_show=true;
+                }
+                scroll_if = false;
+                console.log('AJAX:scroll_if=='+scroll_if);
+                console.log('AJAX:nomor_show=='+nomor_show);
+                return false;
+            }
+            //正常添加数据
             for(var i=0;i<20;i++){
                 $('.js_ul_members').append(list);
             }
             $('.load').hide();
             scroll_if = true;
             body_height = Math.floor($('body').height()).toFixed(0);
+            console.log('AJAX:scroll_if=='+scroll_if);
+            console.log('AJAX:nomor_show=='+nomor_show);
             // console.log(body_height); 
         }
         //获取会员列表
@@ -111,14 +156,20 @@ require(["zepto", "yanzheng", "close_tip"], function($, yanzheng, close_tip) {
                             var cz_mobile = return_data[i].mobile;
                             var cz_name = return_data[i].name;
                             var cz_balance = (return_data[i].balance / 100).toFixed(2);
-                            var li_detail='<li><dl><dt><img src="' + cz_avatar + '"></dt><dd>' + cz_name + '</dd><dd class="grey"><i class="icon_tel"></i>' + cz_mobile + '</dd><dd class="grey">储值<span class="orange">' + cz_recharge_times + '次</span></dd><div class="clearfix"></div></dl><p><span class="grey">余额</span><br/><span class="orange">￥<i class="i_normal">' + cz_balance + '</i></span></p></li>';                            
+                            var cz_c = return_data[i].c;
+                            var li_detail='<li data-c="'+cz_c+'" onclick="memberto(this)"><dl><dt><img src="' + cz_avatar + '"></dt><dd>' + cz_name + '</dd><dd class="grey"><i class="icon_tel"></i>' + cz_mobile + '</dd><dd class="grey">储值<span class="orange">' + cz_recharge_times + '次</span></dd><div class="clearfix"></div></dl><p><span class="grey">余额</span><br/><span class="orange">￥<i class="i_normal">' + cz_balance + '</i></span></p></li>';                            
                             $(".js_ul_members").append(li_detail);
                         });
                         var pos_val = $('#js_pos').val() - 0;
                         if (return_data.length < 20) {
-                            $('#alert_alert').show();
-                            $('#alert_alert .alert_con_br').html('数据已加载完毕');
-                            $('.zheceng1').show();
+                            if(pos_val>0){
+                                $('.load').hide();
+                                $("#nomoredata").animate({opacity: 0.7,}, 500,'ease-out');
+                                window.setTimeout(nomoredata_hide, 2000);
+                            } 
+                            // $('#alert_alert').show();
+                            // $('#alert_alert .alert_con_br').html('数据已加载完毕');
+                            // $('.zheceng1').show();
                             scroll_if = false;
                         } else {
                             pos_val += 20;
